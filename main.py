@@ -15,6 +15,8 @@ x_food, y_food = [], []
 x_feast, y_feast = [], []
 
 
+# TODO: Break functions into even smaller functions so their modules can be used,
+#  like "get_animals_position", "get_IDs", etc.
 # Operations on sets of animals data
 
 
@@ -34,7 +36,7 @@ def generate_animals(amount):
         animals_list.append(animal)
 
 
-def print_creatures(animals):
+def print_animals(animals):
     for i in range(len(animals)):
         print("==ANIMAL==")
         print("Animal\'s ID: ", animals[i].get_id())
@@ -75,6 +77,60 @@ def print_food(foods):
 # Habitat processes
 
 
+def food_consumption():
+    food_dump_list = []
+
+    for i in range(len(animals_list)):
+        current_animal = animals_list[i]
+        animal_pos = current_animal.get_position()
+        animal_id = current_animal.get_id()
+
+        for j in range(len(food_list)):
+            current_food = food_list[j]
+            food_pos = current_food.get_position()
+
+            if animal_pos == food_pos:
+                current_animal.decrease_hunger()
+                print("Animal '", animal_id,
+                      "' just had a meal!\nIt\'s hunger now: ",
+                      current_animal.get_hunger())
+                food_dump_list.append(current_food)
+    # Might be a temporary solution, since it kind of makes it possible to eat one food multiple times.
+    # However, that probably will be changed in the future when the code to disallow multiple objects
+    # on the same position to be present.
+    for item in food_dump_list:
+        # Temporary code to ensure food consumption is working.
+        pos = item.get_position()
+        x = pos[0]
+        y = pos[1]
+        x_feast.append(x)
+        y_feast.append(y)
+        # Possible error [rare]: Two animals spawn at the same food, causing the method
+        # to try removing one food twice.
+        food_list.remove(item)
+
+
+def animal_movement_random(animal):
+    position = animal.get_position()
+    rand_x, rand_y = randint(-1, 1), randint(-1, 1)
+    while rand_x == 0 and rand_y == 0:
+        rand_x, rand_y = randint(-1, 1), randint(-1, 1)
+
+    x = position[0] + rand_x
+    y = position[1] + rand_y
+
+    animal.set_position_x(x)
+    animal.set_position_y(y)
+
+
+# TODO: Implement hunting movement.
+def animal_movement(animal):
+    pass
+
+
+# Runtime functions
+
+
 def plot_habitat():
     # Create traces for animals and food.
     animals_trace = go.Scatter(
@@ -113,52 +169,24 @@ def plot_habitat():
     py.plot(data, filename="habitat_map.html")
 
 
-# TODO: Figure how to remove food entries after eating it.
+def generate_objects(animals, food):
+    generate_animals(animals)
+    generate_food(food)
+    # Later add food_consumption here - after removing prints from it.
 
 
-def food_consumption():
-    food_dump_list = []
-
-    for i in range(len(animals_list)):
-        current_animal = animals_list[i]
-        animal_pos = current_animal.get_position()
-        animal_id = current_animal.get_id()
-
-        for j in range(len(food_list)):
-            current_food = food_list[j]
-            food_pos = current_food.get_position()
-
-            if animal_pos == food_pos:
-                current_animal.decrease_hunger()
-                print("Animal '", animal_id,
-                      "' just had a meal!\nIt\'s hunger now: ",
-                      current_animal.get_hunger())
-                food_dump_list.append(current_food)
-    # Might be a temporary solution, since it kind of makes it possible to eat one food multiple times.
-    # However, that probably will be changed in the future when the code to disallow multiple objects
-    # on the same position to be present.
-    for item in food_dump_list:
-        # Temporary code to ensure food consumption is working.
-        pos = item.get_position()
-        x = pos[0]
-        y = pos[1]
-        x_feast.append(x)
-        y_feast.append(y)
-        # Possible error [rare]: Two animals spawn at the same food, causing the method
-        # to try removing one food two times.
-        food_list.remove(item)
+def plot_objects(animals, food):
+    plot_animals(animals)
+    plot_food(food)
+    plot_habitat()
 
 
-# Run instance code
-generate_animals(15)
-print_creatures(animals_list)
+# Instance code
+generate_objects(15, 40)
 
-generate_food(40)
+print_animals(animals_list)
 print_food(food_list)
 
 food_consumption()
 
-plot_animals(animals_list)
-plot_food(food_list)
-
-plot_habitat()
+plot_objects(animals_list, food_list)

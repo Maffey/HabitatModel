@@ -15,6 +15,8 @@ class Animal:
     def get_id(self):
         return self.animal_id
 
+    # Consider breaking this getter into two separate ones.
+
     def get_position(self):
         return self.pos_x, self.pos_y
 
@@ -25,6 +27,12 @@ class Animal:
         return self.speed
 
     # Setters
+
+    def set_position_x(self, x):
+        self.pos_x = x
+
+    def set_position_y(self, y):
+        self.pos_y = y
 
     def increase_hunger(self):
         self.hunger += 1
