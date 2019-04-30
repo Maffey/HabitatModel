@@ -2,8 +2,8 @@ class Creature:
     """Class contains data about the creature, including it\'s position and attributes."""
     population = 0
 
-    def __init__(self, creature_id, pos_x, pos_y, atr_speed=1):
-        self.creature_id = creature_id
+    def __init__(self, pos_x, pos_y, atr_speed=1):
+        self.creature_id = Creature.population
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.atr_speed = atr_speed
