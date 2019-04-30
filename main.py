@@ -1,56 +1,50 @@
 import plotly.offline as py
 import plotly.graph_objs as go
 from random import randint
-from creature import Creature
+from animal import Animal
 from food import Food
 
-"""
-Map of our habitat model. Dimensions: 10 x 10.
-X - location of the creature.
-o - location of food.
-"""
-# TODO: Find a better way to initialize and display the map.
-habitat_map = [['', '', '', '', '', '', '', '', '', ''],
-               ['', '', '', '', '', '', '', '', '', ''],
-               ['', '', '', '', '', '', '', '', '', ''],
-               ['', '', '', '', '', '', '', '', '', ''],
-               ['', '', '', '', '', '', '', '', '', ''],
-               ['', '', '', '', '', '', '', '', '', ''],
-               ['', '', '', '', '', '', '', '', '', ''],
-               ['', '', '', '', '', '', '', '', '', ''],
-               ['', '', '', '', '', '', '', '', '', ''],
-               ['', '', '', '', '', '', '', '', '', '']]
+# Global variables
 
-creatures_list = []
+animals_list = []
 food_list = []
 
+x_animals, y_animals = [], []
+x_food, y_food = [], []
+# Temporary variable for ensuring that consumption is executed correctly.
+x_feast, y_feast = [], []
 
-# Creatures functions.
+
+# Operations on sets of animals data
 
 
-def plot_creatures(creatures):
-    for i in range(len(creatures)):
-        current_creature = creatures[i]
-        position = current_creature.get_position()
+def plot_animals(animals):
+    for i in range(len(animals)):
+        current_animal = animals[i]
+        position = current_animal.get_position()
         x = position[0]
         y = position[1]
-        habitat_map[y][x] = "X"
+        x_animals.append(x)
+        y_animals.append(y)
 
 
-def generate_creatures(amount):
+def generate_animals(amount):
     for i in range(amount):
-        creature = Creature(randint(0, 9), randint(0, 9))
-        creatures_list.append(creature)
+        animal = Animal(randint(0, 9), randint(0, 9))
+        animals_list.append(animal)
 
 
-def print_creatures(creatures):
-    for i in range(len(creatures)):
-        print("Creature\'s ID: ", creatures[i].get_id())
-        print("Position: ", creatures[i].get_position())
-        print("Speed: ", creatures[i].get_speed())
+def print_creatures(animals):
+    for i in range(len(animals)):
+        print("==ANIMAL==")
+        print("Animal\'s ID: ", animals[i].get_id())
+        print("Position: ", animals[i].get_position())
+        print("Hunger: ", animals[i].get_hunger())
+        print("Speed: ", animals[i].get_speed())
+    print("=" * 15)
 
 
-# Food functions.
+# Operations on sets of food data
 
 
 def plot_food(foods):
@@ -59,7 +53,8 @@ def plot_food(foods):
         position = current_food.get_position()
         x = position[0]
         y = position[1]
-        habitat_map[y][x] = "o"
+        x_food.append(x)
+        y_food.append(y)
 
 
 def generate_food(amount):
@@ -70,23 +65,100 @@ def generate_food(amount):
 
 def print_food(foods):
     for i in range(len(foods)):
+        print("===FOOD===")
         print("Position: ", foods[i].get_position())
         print("Nutrition value: ", foods[i].get_nutrition())
         print("Decay time: ", foods[i].get_decay())
+    print("=" * 15)
 
 
-generate_creatures(3)
-print_creatures(creatures_list)
-print("Population: ", Creature.population)
+# Habitat processes
 
-generate_food(7)
+
+def plot_habitat():
+    # Create traces for animals and food.
+    animals_trace = go.Scatter(
+        x=x_animals,
+        y=y_animals,
+        mode="markers",
+        name="Animal",
+        marker=dict(
+            size=50,
+            color="rgb(255, 0, 0)"
+        )
+    )
+    food_trace = go.Scatter(
+        x=x_food,
+        y=y_food,
+        mode="markers",
+        name="Food",
+        marker=dict(
+            size=25,
+            color="rgb(0, 255, 0)"
+        )
+    )
+
+    feast_trace = go.Scatter(
+        x=x_feast,
+        y=y_feast,
+        mode="markers",
+        name="Eating",
+        marker=dict(
+            size=15,
+            color="rgb(0, 0, 255)"
+        )
+    )
+    # Plot the traces.
+    data = [animals_trace, food_trace, feast_trace]
+    py.plot(data, filename="habitat_map.html")
+
+
+# TODO: Figure how to remove food entries after eating it.
+
+
+def food_consumption():
+    food_dump_list = []
+
+    for i in range(len(animals_list)):
+        current_animal = animals_list[i]
+        animal_pos = current_animal.get_position()
+        animal_id = current_animal.get_id()
+
+        for j in range(len(food_list)):
+            current_food = food_list[j]
+            food_pos = current_food.get_position()
+
+            if animal_pos == food_pos:
+                current_animal.decrease_hunger()
+                print("Animal '", animal_id,
+                      "' just had a meal!\nIt\'s hunger now: ",
+                      current_animal.get_hunger())
+                food_dump_list.append(current_food)
+    # Might be a temporary solution, since it kind of makes it possible to eat one food multiple times.
+    # However, that probably will be changed in the future when the code to disallow multiple objects
+    # on the same position to be present.
+    for item in food_dump_list:
+        # Temporary code to ensure food consumption is working.
+        pos = item.get_position()
+        x = pos[0]
+        y = pos[1]
+        x_feast.append(x)
+        y_feast.append(y)
+        # Possible error [rare]: Two animals spawn at the same food, causing the method
+        # to try removing one food two times.
+        food_list.remove(item)
+
+
+# Run instance code
+generate_animals(15)
+print_creatures(animals_list)
+
+generate_food(40)
 print_food(food_list)
 
-plot_creatures(creatures_list)
-plot_food(food_list)
-print(habitat_map)
+food_consumption()
 
-py.plot({
-    "data": [go.Scatter(x=[1, 2, 3, 4], y=[1, 2, 3, 4], mode='markers')],
-    "layout": go.Layout(title="Habitat Map")
-}, auto_open=True, filename="habitat_map.html")
+plot_animals(animals_list)
+plot_food(food_list)
+
+plot_habitat()
