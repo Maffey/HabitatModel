@@ -3,7 +3,8 @@ class Food:
     The class contains data about food which Creatures can eat, like it\'s position,
     nutritional value and time after the food decays.
     """
-    def __init__(self, pos_x, pos_y, nutrition, decay=10):
+
+    def __init__(self, pos_x, pos_y, nutrition=1, decay=10):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.nutrition = nutrition
