@@ -1,5 +1,5 @@
-from Creature import Creature
-from Food import Food
+from creature import Creature
+from food import Food
 
 # Map of our habitat model. Dimensions: 10 x 10.
 # TODO: Find a better way to initialize and display the map.
