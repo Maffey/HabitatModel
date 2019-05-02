@@ -123,9 +123,12 @@ def animal_movement_random(animal):
     animal.set_position_y(y)
 
 
-# TODO: Implement hunting movement.
+# TODO: Implement movement based on vision
 def animal_movement(animal):
-    pass
+    position = animal.get_position()
+    x = position[0]
+    y = position[1]
+    vision = animal.get_vision()
 
 
 # Runtime functions
@@ -182,6 +185,8 @@ def plot_objects(animals, food):
 
 
 # Instance code
+
+
 generate_objects(15, 40)
 
 print_animals(animals_list)
